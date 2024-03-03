@@ -44,6 +44,7 @@ io.on("connection", (socket) => {
       io.to(receiverId).emit("new_message", { sender, message }); // Send message only to the intended recipient
     } else {
       // Handle case where receiver is not found (e.g., user left the chat)
+      io.emit("not_found", { message: `User ${receiver} not found.` });
       console.log(`User ${receiver} not found.`);
     }
   });

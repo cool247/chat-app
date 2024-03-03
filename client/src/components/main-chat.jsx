@@ -1,23 +1,33 @@
+/* eslint-disable react/prop-types */
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { Grid, Typography, TextField, Button, Paper, List, ListItem, ListItemButton, ListItemText, Stack } from '@mui/material';
 
-let isMounted = false;
 const ChatPage = ({ usersList, socket, username }) => {
 	const [selectedUser, setSelectedUser] = useState('');
 	const [message, setMessage] = useState('');
 	const [messages, setMessages] = useState([]);
 
 	useEffect(() => {
-		if (socket && !isMounted) {
-			socket.on('new_message', (data) => {
-				console.log(data, 'new-message')
-				setMessages((prevMessages) => [...prevMessages, data,]);
-			});
-			isMounted = true;
+		if (socket) {
+			const handleNewMessage = (data) => {
+				setMessages((prevMessages) => [...prevMessages, data]);
+			};
+
+			const notFound = (data) => {
+				toast.info(data.message)
+			}
+
+			socket.on('new_message', handleNewMessage);
+			socket.on('not_found', notFound);
+
+			// Clean up previous event listener
+			return () => {
+				socket.off('new_message', handleNewMessage);
+				socket.off('not_found', notFound);
+			};
 		}
 	}, [socket]);
-
 
 	const handleMessageChange = (event) => {
 		setMessage(event.target.value);
