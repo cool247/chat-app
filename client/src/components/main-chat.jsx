@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
-import { Grid, Typography, TextField, Button, Paper, List, ListItem, ListItemButton, ListItemText, Stack } from '@mui/material';
+import { Grid, Typography, TextField, Button, Paper, List, ListItem, ListItemButton, ListItemText, Stack, Box } from '@mui/material';
 
 const ChatPage = ({ usersList, socket, username }) => {
 	const [selectedUser, setSelectedUser] = useState('');
@@ -54,10 +54,10 @@ const ChatPage = ({ usersList, socket, username }) => {
 	return (
 
 		<Grid container spacing={2}>
-			<Grid item xs={4}>
+			<Grid item xs={4} >
 				<Typography variant='subtitle1' color='primary'>Logged In {username}</Typography>
-				<Typography variant="subtitle2">Joined Users</Typography>
-				<List component={Paper} dense sx={{ p: 2, minHeight: 400 }}>
+				<List component={Paper} dense sx={{ p: 2, minHeight: 600, height: '100%', backgroundColor: '#f4e5ff' }}>
+					<Typography variant="subtitle2">Joined Users</Typography>
 					{usersList.filter(user => user !== username).map((user) => (
 						<ListItem sx={{ borderBottom: '1px solid', borderColor: 'divider' }} disablePadding key={user} >
 							<ListItemButton selected={user === selectedUser} onClick={() => handleUserSelect(user)}>
@@ -71,25 +71,17 @@ const ChatPage = ({ usersList, socket, username }) => {
 			</Grid>
 			<Grid item xs={8}>
 				{/* Right side: Message content */}
-				<Typography variant="h6" mb={2}>Chat {selectedUser}</Typography>
-				<Stack component={Paper} style={{ overflowY: 'auto', padding: '8px', minHeight: 400, }}>
+				<Typography variant="subtitle1" color='secondary'>Send Message to {selectedUser}</Typography>
+				<Stack component={Paper} style={{ overflowY: 'auto', padding: '8px', minHeight: 600, height: '100%', backgroundColor: '#f4e5ff' }}>
 
 					<Stack sx={{ flex: 1, marginTop: 'auto' }}>
 						{messages.map((msg, index) => (
-							<div key={index} style={{ marginBlock: 8, textAlign: msg.sender === username ? 'right' : 'left', }}>
-								<Paper elevation={1} style={{ backgroundColor: msg.sender === username ? '#d8f4ff' : '#ebebeb', maxWidth: 200, display: 'inline-block', padding: "4px 16px" }}>
-									<Typography variant="body1">
-										<strong>{msg.sender}:</strong> {msg.message}
-									</Typography>
-								</Paper>
-							</div>
+							<MessageBubble msg={msg} username={username} key={index} />
 						))}
 					</Stack>
-					<Stack px={2} borderRadius={2} direction='row' alignItems='center' border='1px solid' borderColor="divider">
-						<TextField
-							variant="standard"
-							margin="normal"
-							fullWidth
+					<Stack borderRadius={1} direction='row' alignItems='center' border='1px solid' borderColor="divider">
+						<input
+							style={{ appearance: 'none', paddingInline: 16, paddingBlock: 8, border: 'none', outline: 'none', flex: 1 }}
 							id="message"
 							name="message"
 							value={message}
@@ -98,7 +90,7 @@ const ChatPage = ({ usersList, socket, username }) => {
 						{/* Send message button */}
 						<Button
 							type="button"
-							variant="contained"
+							variant="outlined"
 							color="primary"
 							onClick={handleSendMessage}
 						>
@@ -117,3 +109,31 @@ const ChatPage = ({ usersList, socket, username }) => {
 };
 
 export default ChatPage;
+
+
+function MessageBubble({ msg, username }) {
+	if (username !== msg.sender) {
+		return <Box sx={{ marginBlock: 1, }}>
+			<Stack sx={{ flexDirection: 'row', alignItems: 'flex-end' }}>
+				<Typography align='center' variant="subtitle1" sx={{ backgroundColor: '#505872', color: 'white', mr: 1, minWidth: 50, border: '1px solid', borderColor: 'divider', borderRadius: 3, borderBottomRightRadius: 0 }}>
+					{msg.sender}
+				</Typography>
+				<Typography variant="body1" sx={{ width: 300, backgroundColor: '#eee', border: '1px solid', borderColor: 'divider', borderRadius: 2, borderBottomLeftRadius: 0, px: 2, py: 1 }}>
+					{msg.message}
+				</Typography>
+			</Stack>
+		</Box>
+	}
+
+	return <Box sx={{ marginBlock: 1, }}>
+		<Stack sx={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'right' }}>
+			<Typography variant="body1" sx={{ width: 300, backgroundColor: 'aliceblue', border: '1px solid', borderColor: 'divider', borderRadius: 2, borderBottomRightRadius: 0, px: 2, py: 1 }}>
+				{msg.message}
+			</Typography>
+			<Typography align='center' variant="subtitle1" sx={{ backgroundColor: '#505872', color: 'white', ml: 1, minWidth: 50, border: '1px solid', borderColor: 'divider', borderRadius: 3, borderBottomLeftRadius: 0 }}>
+				{msg.sender}
+			</Typography>
+
+		</Stack>
+	</Box>
+}
